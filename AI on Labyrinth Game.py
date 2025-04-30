@@ -11,6 +11,17 @@ Do remember previous position for AI has been more effective. The limit of move 
 limit may be x3.
 '''
 
+#To do
+#AI should be placed at the correct starting point ('0')
+#able to detct walls
+#able to see 3x3 near cells ('#')
+#should be able to move up, down, left, and right
+#Must remember last positions
+#limit of moves to win is 2*width*height 
+#should be able to recognize empty cells
+#should be able to detect if it had won (when on cell with symbol 'I')
+
+
 class WormAI:
     def __init__(self) -> None:
         ...
