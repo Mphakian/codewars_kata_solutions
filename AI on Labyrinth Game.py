@@ -10,3 +10,11 @@ Target of AI: find exit from labyrinth (symbol 'O') with minimal step, do not wa
 Do remember previous position for AI has been more effective. The limit of move to win in many test case will be up to 2*width*height step. In easy map the limit will be 1.5*width*height. On same big map 
 limit may be x3.
 '''
+
+class WormAI:
+    def __init__(self) -> None:
+        ...
+    def on_state(self, m, position) -> None: # m[y][x], position=(x,y)
+        ...
+    def do_move(self) -> str: #return single character of WASD or 8426
+        ...
