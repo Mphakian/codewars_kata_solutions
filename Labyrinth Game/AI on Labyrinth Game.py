@@ -27,5 +27,23 @@ class WormAI:
         ...
     def on_state(self, m, position) -> None: # m[y][x], position=(x,y)
         ...
+        
+    def read_map(self, map : str) -> list:
+        with open(f'.\Labyrinth Game\{map}', encoding='utf-8') as f:
+            content = f.read()
+        return content.splitlines()
+    
+    def starting_pos(self, mapped_list : list) -> tuple:
+        for i in range(len(mapped_list)):
+            for j in range(len(mapped_list[i])):
+                if mapped_list[i][j] == '0':
+                    return i,j
+        
     def do_move(self) -> str: #return single character of WASD or 8426
         ...
+        
+test : WormAI = WormAI()
+
+mapped_list = test.read_map('map_1.txt')
+
+print(test.starting_pos(mapped_list))
