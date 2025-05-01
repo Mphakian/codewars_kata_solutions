@@ -12,10 +12,10 @@ limit may be x3.
 '''
 
 #To do
-#AI should be placed at the correct starting point ('0')
+#AI should be placed at the correct starting point ('0') -------------Done
 #able to detct walls
 #able to see 3x3 near cells ('#')
-#should be able to move up, down, left, and right
+#should be able to move up, down, left, and right -------------------Next Task
 #Must remember last positions
 #limit of moves to win is 2*width*height 
 #should be able to recognize empty cells
