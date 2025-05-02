@@ -41,9 +41,11 @@ class WormAI:
         
     def do_move(self) -> str: #return single character of WASD or 8426
         ...
-        
-test : WormAI = WormAI()
 
-mapped_list = test.read_map('map_1.txt')
+if __name__ == '__main__':
+       
+    test : WormAI = WormAI()
 
-print(test.starting_pos(mapped_list))
+    mapped_list = test.read_map('map_1.txt')
+
+    print(test.starting_pos(mapped_list))
