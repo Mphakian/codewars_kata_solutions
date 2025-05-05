@@ -33,7 +33,7 @@ class WormAI:
     def read_map(self) -> list:
         with open(f'.\Labyrinth Game\{self.game_map}', encoding='utf-8') as f:
             content = f.read()
-        return content.splitlines()                                                    #The contents (strings) in the mappped_list are not be replaced.... If I remember well
+        return content.splitlines()                                                    #The contents (strings) in the mappped_list cannot not be replaced.... If I remember well
     
     def starting_pos(self, mapped_list : list) -> tuple:
         for i in range(len(mapped_list)):
@@ -54,6 +54,10 @@ class WormAI:
             self.hist_pos.append(current_pos)
 
             #Redraw the map
+            cur_map_list = self.read_map()
+            cur_map_list[current_pos[0] + 1][current_pos[1]] = ' '                      #################ERROR!!!!!!!!!!!!!
+            cur_map_list[current_pos[0]][current_pos[1]] = '0'                     #################ERROR!!!!!!!!!!!!!
+
             
 
         #For S/2 -> 0 must be moved 1 postion down (1 height down)
@@ -65,6 +69,8 @@ class WormAI:
 if __name__ == '__main__':
 
     test : WormAI = WormAI('map_1.txt')
+    print(test.do_move(8))
+    print(test.game_map)
 
     
 
