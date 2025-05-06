@@ -33,8 +33,7 @@ class WormAI:
     def read_map(self) -> list:
         with open(f'.\Labyrinth Game\{self.game_map}', 'r', encoding='utf-8') as f:
             content = f.readlines()
-            list_of_lists = [list(line.rstrip('\n')) for line in content]
-        return list_of_lists                                            #The contents (strings) in the mappped_list cannot not be replaced.... If I remember well
+        return [list(line.rstrip('\n')) for line in content]                                            #The contents (strings) in the mappped_list cannot not be replaced.... If I remember well
     
     def starting_pos(self, mapped_list : list) -> tuple:
         for i in range(len(mapped_list)):
