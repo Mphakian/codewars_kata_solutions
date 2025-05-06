@@ -25,6 +25,7 @@ limit may be x3.
 class WormAI:
     def __init__(self, game_map : str) -> None:
         self.game_map = game_map
+        self.mapped_list = []
         self.hist_pos = []
 
     def on_state(self, m, position) -> None: # m[y][x], position=(x,y)
@@ -33,12 +34,12 @@ class WormAI:
     def read_map(self) -> list:
         with open(f'.\Labyrinth Game\{self.game_map}', 'r', encoding='utf-8') as f:
             content = f.readlines()
-        return [list(line.rstrip('\n')) for line in content]                                            #The contents (strings) in the mappped_list cannot not be replaced.... If I remember well
+        self.mapped_list = [list(line.rstrip('\n')) for line in content]
     
-    def starting_pos(self, mapped_list : list) -> tuple:
-        for i in range(len(mapped_list)):
-            for j in range(len(mapped_list[i])):
-                if mapped_list[i][j] == '0':
+    def starting_pos(self ) -> tuple:
+        for i in range(len(self.mapped_list)):
+            for j in range(len(self.mapped_list[i])):
+                if self.mapped_list[i][j] == '0':
                     return i,j
         
     def do_move(self, move : str | int) -> tuple: #return single character of WASD or 8426
@@ -58,7 +59,7 @@ class WormAI:
             cur_map_list[current_pos[0] + 1][current_pos[1]] = ' '                      #################ERROR!!!!!!!!!!!!!
             cur_map_list[current_pos[0]][current_pos[1]] = '0'                     #################ERROR!!!!!!!!!!!!!
 
-            
+        
 
         #For S/2 -> 0 must be moved 1 postion down (1 height down)
         #For A/4 -> 0 must be moved 1 postion left (1 height left)
@@ -69,8 +70,5 @@ class WormAI:
 if __name__ == '__main__':
 
     test : WormAI = WormAI('map_1.txt')
-    print(test.read_map())
-
-    
-
+    test.read_map()
 
