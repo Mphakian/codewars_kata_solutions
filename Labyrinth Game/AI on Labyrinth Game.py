@@ -14,8 +14,7 @@ limit may be x3.
 
 class WormAI:
     def __init__(self) -> None:
-        self.visited = set()
-        self.map = {}  # {(x, y): cell}
+        self.map = {}          # {(x, y): cell}
         self.position = None
         self.exit_pos = None
         self.move_queue = []
@@ -25,9 +24,9 @@ class WormAI:
             'A': (-1, 0),  # Left
             'D': (1, 0)    # Right
         }
-        self.reverse_dir = {v: k for k, v in self.directions.items()}
+        self.explored = set()  # Cells fully explored (all neighbors known)
 
-    def on_state(self, m, position) -> None:  # m[y][x], position=(x,y)
+    def on_state(self, m, position) -> None:
         self.position = position
         x, y = position
         # Update map with visible 3x3 cells
@@ -38,25 +37,41 @@ class WormAI:
                 self.map[(nx, ny)] = cell
                 if cell == 'O':
                     self.exit_pos = (nx, ny)
-        self.visited.add(position)
-        # If exit is found, plan path to it
-        if self.exit_pos:
-            self.move_queue = self._bfs(self.position, self.exit_pos)
-        else:
-            # Explore nearest unknown cell
-            unknown = [pos for pos, val in self._adjacent_cells(x, y) if val == '?']
-            if unknown:
-                self.move_queue = self._bfs(self.position, unknown[0])
-            else:
-                # Explore any unvisited open cell
-                open_cells = [pos for pos, val in self.map.items() if val not in ['#'] and pos not in self.visited]
-                if open_cells:
-                    self.move_queue = self._bfs(self.position, open_cells[0])
 
-    def _adjacent_cells(self, x, y):
-        for move, (dx, dy) in self.directions.items():
-            nx, ny = x + dx, y + dy
-            yield (nx, ny), self.map.get((nx, ny), '?')
+        # Mark cells as explored if all neighbors are known
+        for (cx, cy), val in list(self.map.items()):
+            if val == '#':
+                continue
+            all_known = True
+            for ddx, ddy in self.directions.values():
+                adj = (cx + ddx, cy + ddy)
+                if self.map.get(adj, '?') == '?':
+                    all_known = False
+                    break
+            if all_known:
+                self.explored.add((cx, cy))
+
+        # Only recalculate path if move_queue is empty
+        if not self.move_queue:
+            if self.exit_pos:
+                self.move_queue = self._bfs(self.position, self.exit_pos)
+            else:
+                # Find all frontier cells (open, not explored, next to unknown)
+                frontier = set()
+                for (cx, cy), val in self.map.items():
+                    if val != ' ' or (cx, cy) in self.explored:
+                        continue
+                    for ddx, ddy in self.directions.values():
+                        adj = (cx + ddx, cy + ddy)
+                        if self.map.get(adj, '?') == '?':
+                            frontier.add((cx, cy))
+                            break
+                if frontier:
+                    # Go to nearest frontier cell
+                    paths = [self._bfs(self.position, f) for f in frontier]
+                    paths = [p for p in paths if p]
+                    if paths:
+                        self.move_queue = min(paths, key=len)
 
     def _bfs(self, start, goal):
         from collections import deque
@@ -65,12 +80,8 @@ class WormAI:
         seen = set()
         while queue:
             (cx, cy), path = queue.popleft()
-            if isinstance(goal, list) or isinstance(goal, tuple):
-                if (cx, cy) == goal or (isinstance(goal, list) and (cx, cy) in goal):
-                    return path
-            else:
-                if (cx, cy) == goal:
-                    return path
+            if (cx, cy) == goal:
+                return path
             for move, (dx, dy) in self.directions.items():
                 nx, ny = cx + dx, cy + dy
                 if self.map.get((nx, ny), '#') != '#' and (nx, ny) not in seen:
@@ -89,10 +100,9 @@ class WormAI:
                 if mapped_list[i][j] == '0':
                     return j, i  # (x, y)
         
-    def do_move(self) -> str:  # return single character of WASD or 8426
+    def do_move(self) -> str:
         if self.move_queue:
             return self.move_queue.pop(0)
-        # Default: try to move up if nothing else
         return 'W'
         
 if __name__ == '__main__':
@@ -102,6 +112,8 @@ if __name__ == '__main__':
     map_name = 'map_1.txt'
     mapped_list = ai.read_map(map_name)
     start_pos = ai.starting_pos(mapped_list)
+    if start_pos is None:
+        raise ValueError("No starting position ('0') found in the map!")
     position = start_pos
 
     # Convert map to dict for display
