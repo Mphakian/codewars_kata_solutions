@@ -34,16 +34,18 @@ class WormAI:
     def read_map(self) -> list:
         with open(f'.\Labyrinth Game\{self.game_map}', 'r', encoding='utf-8') as f:
             content = f.readlines()
-        self.mapped_list = [list(line.rstrip('\n')) for line in content]
+        return content
+        
     
-    def starting_pos(self ) -> tuple:
+    def starting_pos(self) -> tuple:
+        self.read_map()
         for i in range(len(self.mapped_list)):
             for j in range(len(self.mapped_list[i])):
                 if self.mapped_list[i][j] == '0':
                     return i,j
         
     def do_move(self, move : str | int) -> tuple: #return single character of WASD or 8426
-        current_pos = self.starting_pos(self.read_map())
+        current_pos = self.starting_pos()
         self.hist_pos.append(current_pos)
         #REMINDER: current_pos = (height, width) of the map
         #For W/8 -> 0 must be moved 1 postion up (1 height up)
@@ -55,9 +57,9 @@ class WormAI:
             self.hist_pos.append(current_pos)
 
             #Redraw the map
-            cur_map_list = self.read_map()
-            cur_map_list[current_pos[0] + 1][current_pos[1]] = ' '                      #################ERROR!!!!!!!!!!!!!
-            cur_map_list[current_pos[0]][current_pos[1]] = '0'                     #################ERROR!!!!!!!!!!!!!
+            #cur_map_list = self.read_map()
+            self.mapped_list[current_pos[0] + 1][current_pos[1]] = ' '                      #################ERROR!!!!!!!!!!!!!
+            self.mapped_list[current_pos[0]][current_pos[1]] = '0'                     #################ERROR!!!!!!!!!!!!!
 
         
 
@@ -66,9 +68,14 @@ class WormAI:
         #For D/6 -> 0 must be moved 1 postion right (1 height right)
 
         return current_pos
+    
+    def draw_map(self):
+        content = self.read_map()
+        self.mapped_list = [list(line.rstrip('\n')) for line in content]
         
 if __name__ == '__main__':
 
     test : WormAI = WormAI('map_1.txt')
-    test.read_map()
+    print(test.read_map())
+    
 
