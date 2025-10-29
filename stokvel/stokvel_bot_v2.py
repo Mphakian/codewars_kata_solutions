@@ -549,13 +549,45 @@ class ExcelRepository:
             return frames  # duplicate ignored
 
         net = money(amount - bank_charge)
-        contrib.loc[len(contrib)] = [date, member_name, fmt_money(amount), fmt_money(bank_charge), fmt_money(net), note, str(message_id) if message_id else None]
+        contrib.loc[len(contrib)] = [
+            date,
+            member_name,
+            fmt_money(amount),
+            fmt_money(bank_charge),
+            fmt_money(net),
+            note,
+            str(message_id) if message_id else None,
+        ]
 
-        last_balance = money(bank.iloc[-1]['Balance'] if not bank.empty else 0)
+        def _safe_amount(val: object) -> Decimal:
+            try:
+                return parse_amount(str(val))
+            except Exception:
+                return Decimal("0.00")
+
+        last_balance = Decimal("0.00")
+        if not bank.empty:
+            # Derive the running balance from the ledger itself instead of
+            # trusting the stored Balance column, which may be out-of-sync
+            # when the workbook was edited manually.
+            for idx in bank.index:
+                credit = _safe_amount(bank.at[idx, 'Credit']) if 'Credit' in bank.columns else Decimal('0.00')
+                debit = _safe_amount(bank.at[idx, 'Debit']) if 'Debit' in bank.columns else Decimal('0.00')
+                charge = _safe_amount(bank.at[idx, 'Bank Charge']) if 'Bank Charge' in bank.columns else Decimal('0.00')
+                last_balance = money(last_balance + credit - debit - charge)
+
         new_balance = money(last_balance + amount - bank_charge)
         # avoid duplicate bank entry
         if not (message_id and not bank[bank['Message ID'] == str(message_id)].empty):
-            bank.loc[len(bank)] = [date, f"Contribution: {member_name}", fmt_money(amount), "0.00", fmt_money(bank_charge), fmt_money(new_balance), str(message_id) if message_id else None]
+            bank.loc[len(bank)] = [
+                date,
+                f"Contribution: {member_name}",
+                fmt_money(amount),
+                "0.00",
+                fmt_money(bank_charge),
+                fmt_money(new_balance),
+                str(message_id) if message_id else None,
+            ]
 
         frames['contrib'] = contrib
         frames['bank'] = bank
